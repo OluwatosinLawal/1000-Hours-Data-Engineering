@@ -11,4 +11,10 @@ Since i already have knowledge of Excel and Power Bi, my Learning Path withh be;
 -DataOps & DevOps Basics
 -Capstone Project that links all I have learnt.
 
+
+SQL
+I'll be learning with MySQL
+I am taking an advenced course in SQL by Maven Analytics, taught by Analytics expert, John Pauler.
+Here is the link to the course: https://www.udemy.com/course/advanced-sql-mysql-for-analytics-business-intelligence/ 
+
 Thank you as you join me on this journey.
