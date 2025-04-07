@@ -5,12 +5,12 @@ I will also be learning Tableau, Quickbooks and other popular analytics tools.
 
 Since i already have knowledge of Excel and Power Bi
 ## My Learning Path
--Python & SQL coherently
--Cloud services (AWS or Azure)
--Data modeling (Snowflake, Redshift and Bigquery). Although i have basic knowledge of Bigquery.
--ETL and Data Pipleines (Apache Airflow, Spark, Kafka)
--DataOps & DevOps Basics
--Capstone Project that links all I have learnt.
+- Python & SQL coherently
+- Cloud services (AWS or Azure)
+- Data modeling (Snowflake, Redshift and Bigquery). Although i have basic knowledge of Bigquery.
+- ETL and Data Pipleines (Apache Airflow, Spark, Kafka)
+- DataOps & DevOps Basics
+- Capstone Project that links all I have learnt.
 
 
 ### SQL
