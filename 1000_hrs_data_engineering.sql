@@ -33,7 +33,7 @@ WHERE website_session_id BETWEEN 1000 AND 5000;
 -- utm_content is  used to store the name of a specific ad that is being run
 -- count of website sessions to see which ads are driving the most sessions
 -- We rename the distinct count of the website session id with an alias (sessions)
-SELECT utm_content, COUNT(DISTINCT(website_session_id)) AS sessions
+SELECT utm_content, COUNT(DISTINCT website_session_id) AS sessions
 FROM website_sessions
 WHERE website_session_id 
 		BETWEEN 1000 AND 2000
@@ -44,9 +44,9 @@ ORDER BY sessions DESC; -- or 2
 -- To bring in the orders table to take a look at the orders generated from each ads
 -- I'm making use of alias for each table name also so the column names on the syntax is not too large when identifying them or specifying them
 SELECT WS.utm_content, 
-		COUNT(DISTINCT(WS.website_session_id)) AS sessions,
-        COUNT(DISTINCT(O.order_id)) AS orders,
-        COUNT(DISTINCT(O.order_id))/COUNT(DISTINCT(WS.website_session_id))*100 AS conversion_rate -- Session to Order conversion rate
+		COUNT(DISTINCT WS.website_session_id) AS sessions,
+        COUNT(DISTINCT O.order_id) AS orders,
+        COUNT(DISTINCT O.order_id)/COUNT(DISTINCT WS.website_session_id)*100 AS conversion_rate -- Session to Order conversion rate
 FROM website_sessions AS WS
 	LEFT JOIN orders as O
 		ON WS.website_session_id = O.website_session_id
@@ -64,8 +64,8 @@ SELECT ads,
         orders/sessions*100 AS conversion_rate
 FROM(
 	SELECT WS.utm_content AS ads, 
-			COUNT(DISTINCT(WS.website_session_id)) AS sessions,
-			COUNT(DISTINCT(O.order_id)) AS orders
+			COUNT(DISTINCT WS.website_session_id) AS sessions,
+			COUNT(DISTINCT O.order_id) AS orders
 	FROM website_sessions AS WS
 		LEFT JOIN orders as O
 			ON WS.website_session_id = O.website_session_id
@@ -75,3 +75,42 @@ FROM(
 	ORDER BY sessions DESC -- or 2
 ) AS sub
 ORDER BY 2 DESC;
+
+-- Volume of website sessions by utm source, campaign and referring domain up till April 12, 2012
+SELECT utm_source AS sources,
+		utm_campaign AS campaign,
+        http_referer AS refer_domain,
+        COUNT(DISTINCTwebsite_session_id) AS website_sessions
+FROM website_sessions
+WHERE DATE(created_at) < '2012-04-12'
+GROUP BY 1,2,3
+ORDER BY 4 DESC;
+
+-- Calculating converion rate from session to order on gsearch(source) nonbrand (campaign) from April 14, 2012 downward
+SELECT COUNT(DISTINCT WS.website_session_id) AS sessions,
+		COUNT(DISTINCT O.order_id) AS orders,
+        COUNT(DISTINCT O.order_id)/COUNT(DISTINCT WS.website_session_id)*100 AS CVR
+FROM website_sessions AS WS
+	LEFT JOIN orders AS O
+		ON WS.website_session_id = O.website_session_id
+WHERE WS.created_at < '2012-04-14'
+		AND WS.utm_source = 'gsearch'
+        AND WS.utm_campaign = 'nonbrand';
+
+-- Working with grouped dates
+SELECT website_session_id,
+		created_at,
+        MONTH(created_at),
+        WEEK(created_at),
+        YEAR(created_at)
+FROM website_sessions
+WHERE website_session_id BETWEEN 100000 AND 115000; -- arbitary
+
+SELECT YEAR(created_at),
+        WEEK(created_at),
+        MIN(DATE(created_at)), 
+        COUNT(DISTINCT website_session_id)
+FROM website_sessions
+WHERE website_session_id 
+	BETWEEN 100000 AND 115000 -- arbitary
+GROUP BY 1,2;
