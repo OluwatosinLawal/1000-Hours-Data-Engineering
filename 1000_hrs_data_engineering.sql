@@ -54,23 +54,3 @@ WHERE WS.website_session_id
 		BETWEEN 1000 AND 2000
 GROUP BY utm_content -- or 1
 ORDER BY sessions DESC; -- or 2
-
--- To conversion_rate cleaner and easily readable, you can use a subquery instead
--- MySQL does not allow you to reuse aliases in the same SELECT clause (unlike some other databases)
-SELECT ads,
-		sessions,
-        orders,
-        orders/sessions*100 AS conversion_rate
-FROM(
-	SELECT WS.utm_content AS ads, 
-			COUNT(DISTINCT(WS.website_session_id)) AS sessions,
-			COUNT(DISTINCT(O.order_id)) AS orders
-	FROM website_sessions AS WS
-		LEFT JOIN orders as O
-			ON WS.website_session_id = O.website_session_id
-	WHERE WS.website_session_id 
-			BETWEEN 1000 AND 2000
-	GROUP BY utm_content -- or 1
-	ORDER BY sessions DESC -- or 2
-) AS sub
-ORDER BY 2 DESC;
