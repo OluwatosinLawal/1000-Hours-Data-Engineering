@@ -114,3 +114,5 @@ FROM website_sessions
 WHERE website_session_id 
 	BETWEEN 100000 AND 115000 -- arbitary
 GROUP BY 1,2;
+
+-- Another testrun. I could not see my contributions in my profile
