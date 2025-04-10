@@ -96,7 +96,9 @@ FROM website_sessions AS WS
 WHERE WS.created_at < '2012-04-14'
 		AND WS.utm_source = 'gsearch'
         AND WS.utm_campaign = 'nonbrand';
-
+        
+-- Bid Optimization
+-- Understsnding the value of various segments of paid traffic in order to optimize marketing budget
 -- Working with grouped dates
 SELECT website_session_id,
 		created_at,
@@ -106,11 +108,70 @@ SELECT website_session_id,
 FROM website_sessions
 WHERE website_session_id BETWEEN 100000 AND 115000; -- arbitary
 
-SELECT YEAR(created_at),
-        WEEK(created_at),
-        MIN(DATE(created_at)), 
-        COUNT(DISTINCT website_session_id)
+SELECT YEAR(created_at) AS Year,
+        WEEK(created_at) AS Wk,
+        MIN(DATE(created_at)) AS min_date_start, 
+        COUNT(DISTINCT website_session_id) AS session
 FROM website_sessions
 WHERE website_session_id 
 	BETWEEN 100000 AND 115000 -- arbitary
 GROUP BY 1,2;
+
+-- Pivoting Data wth Count and Case
+SELECT
+	order_id AS id,
+    primary_product_id AS prod_id,
+    items_purchased AS items
+FROM orders
+WHERE order_id
+	BETWEEN 31000 AND 32000;
+    
+-- To pivot the table result above;
+
+SELECT primary_product_id,
+		order_id,
+        items_purchased,
+		CASE WHEN items_purchased = 1 THEN order_id ELSE NULL END AS 1_item,
+		CASE WHEN items_purchased = 2 THEN order_id ELSE NULL END AS 2_items
+FROM orders
+WHERE order_id
+	BETWEEN 31000 AND 32000;
+    
+SELECT primary_product_id,
+		order_id,
+        items_purchased,
+		COUNT(DISTINCT CASE WHEN items_purchased = 1 THEN order_id ELSE NULL END) AS 1_item,
+		COUNT(DISTINCT CASE WHEN items_purchased = 2 THEN order_id ELSE NULL END) AS 2_items
+FROM orders
+WHERE order_id
+	BETWEEN 31000 AND 32000
+GROUP BY 1,2,3;
+
+SELECT primary_product_id,
+		COUNT(DISTINCT CASE WHEN items_purchased = 1 THEN order_id ELSE NULL END) AS 1_item,
+		COUNT(DISTINCT CASE WHEN items_purchased = 2 THEN order_id ELSE NULL END) AS 2_items,
+		COUNT(DISTINCT order_id) AS total_orders
+FROM orders
+WHERE order_id
+	BETWEEN 31000 AND 32000
+GROUP BY 1;
+
+-- Traffic Source Trending
+SELECT 	YEAR(created_at) AS yr,
+		WEEK(created_at) AS wk,
+		MIN(DATE(created_at)) AS week_start_date,
+		COUNT(DISTINCT website_session_id) AS sessions
+FROM website_sessions
+WHERE created_at < '2012-05-10'
+		AND utm_source = 'gsearch'
+        AND utm_campaign = 'nonbrand'
+GROUP BY 1,2;
+
+SELECT 	MIN(DATE(created_at)) AS week_start_date,
+		COUNT(DISTINCT website_session_id) AS sessions
+FROM website_sessions
+WHERE created_at < '2012-05-10'
+		AND utm_source = 'gsearch'
+        AND utm_campaign = 'nonbrand'
+GROUP BY YEAR(created_at),
+		WEEK(created_at);
