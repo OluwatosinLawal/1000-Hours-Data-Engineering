@@ -175,3 +175,23 @@ WHERE created_at < '2012-05-10'
         AND utm_campaign = 'nonbrand'
 GROUP BY YEAR(created_at),
 		WEEK(created_at);
+
+-- Traffic source bid optimization
+SELECT
+	device_type,
+    sessions,
+    two,
+    sessions/orders*100
+FROM(
+	SELECT WS.device_type AS device_type,
+			COUNT(DISTINCT CASE WHEN WS.device_type IN ('mobile', 'desktop') THEN WS.website_session_id ELSE NULL END) AS sessions,
+			COUNT(DISTINCT CASE WHEN WS.device_type IN ('mobile', 'desktop') THEN O.order_id ELSE NULL END) AS two
+	FROM website_sessions AS WS
+	LEFT JOIN orders AS O
+			ON WS.website_session_id = O.website_session_id
+	WHERE WS.created_at < '2012-05-11'
+			AND WS.utm_source = 'gsearch'
+			AND WS.utm_campaign = 'nonbrand'
+	GROUP BY 1
+) AS sub
+GROUP BY 1;
