@@ -180,12 +180,33 @@ GROUP BY YEAR(created_at),
 SELECT
 	device_type,
     sessions,
-    two,
-    sessions/orders*100
+    orders,
+    orders/sessions*100
 FROM(
 	SELECT WS.device_type AS device_type,
 			COUNT(DISTINCT CASE WHEN WS.device_type IN ('mobile', 'desktop') THEN WS.website_session_id ELSE NULL END) AS sessions,
-			COUNT(DISTINCT CASE WHEN WS.device_type IN ('mobile', 'desktop') THEN O.order_id ELSE NULL END) AS two
+			COUNT(DISTINCT CASE WHEN WS.device_type IN ('mobile', 'desktop') THEN O.order_id ELSE NULL END) AS orders
+	FROM website_sessions AS WS
+	LEFT JOIN orders AS O
+			ON WS.website_session_id = O.website_session_id
+	WHERE WS.created_at < '2012-05-11'
+			AND WS.utm_source = 'gsearch'
+			AND WS.utm_campaign = 'nonbrand'
+	GROUP BY 1
+) AS sub
+GROUP BY 1;
+
+
+-- Uncomplicated correct one
+SELECT
+	device_type,
+    sessions,
+    orders,
+    orders/sessions*100
+FROM(
+	SELECT WS.device_type AS device_type,
+			COUNT(DISTINCT  WS.website_session_id) AS sessions,
+			COUNT(DISTINCT O.order_id) AS orders
 	FROM website_sessions AS WS
 	LEFT JOIN orders AS O
 			ON WS.website_session_id = O.website_session_id
