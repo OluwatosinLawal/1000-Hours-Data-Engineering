@@ -208,3 +208,8 @@ WHERE WS.created_at > '2012-04-15'
 		AND WS.utm_source = 'gsearch'
 		AND WS.utm_campaign = 'nonbrand'
 GROUP BY WEEK (DATE (WS.created_at));
+
+-- Analyzing Top Website Content
+SELECT * 
+FROM website_pageviews
+WHERE website_pageview_id <1000;
