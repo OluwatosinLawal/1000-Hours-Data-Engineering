@@ -210,6 +210,25 @@ WHERE WS.created_at > '2012-04-15'
 GROUP BY WEEK (DATE (WS.created_at));
 
 -- Analyzing Top Website Content
-SELECT * 
+CREATE TEMPORARY TABLE first_pg_view
+SELECT website_session_id,
+		MIN(website_pageview_id) AS min_pvid	
 FROM website_pageviews
-WHERE website_pageview_id <1000;
+WHERE website_pageview_id <1000
+GROUP BY 1;
+
+SELECT *
+FROM first_pg_view;
+
+SELECT FP.website_session_id,
+        WP.pageview_url
+FROM first_pg_view AS FP
+	LEFT JOIN website_pageviews AS WP
+		ON FP.min_pvid = WP.website_pageview_id;
+        
+SELECT WP.pageview_url,
+		COUNT(DISTINCT FP.website_session_id)
+FROM first_pg_view AS FP
+	LEFT JOIN website_pageviews AS WP
+		ON FP.min_pvid = WP.website_pageview_id
+GROUP BY 1;
