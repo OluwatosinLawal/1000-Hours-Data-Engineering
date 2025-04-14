@@ -232,3 +232,36 @@ FROM first_pg_view AS FP
 	LEFT JOIN website_pageviews AS WP
 		ON FP.min_pvid = WP.website_pageview_id
 GROUP BY 1;
+
+-- Top website sessions
+SELECT pageview_url,
+		COUNT(DISTINCT website_session_id) AS sessions
+FROM website_pageviews
+WHERE created_at < '2012-06-09'
+GROUP BY 1
+ORDER BY 2 DESC;
+
+-- Top Entry Pages
+CREATE TEMPORARY TABLE min_time
+SELECT website_session_id,
+		pageview_url,
+        MIN(created_at) AS timeline
+FROM website_pageviews
+WHERE created_at < '2012-06-12'
+GROUP BY 1,2;
+
+SELECT MT.pageview_url AS Landing_Page,
+		MT.website_session_id,
+		COUNT(DISTINCT MT.website_session_id) sessions_hitting_LP
+FROM min_time AS MT
+	LEFT JOIN website_pageviews AS WP
+		ON MT.timeline = WP.created_at
+GROUP BY 1,2
+ORDER BY 2 DESC;
+
+-- Above all wrong
+
+
+
+
+
