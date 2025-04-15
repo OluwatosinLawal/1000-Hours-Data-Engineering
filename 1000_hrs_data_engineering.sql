@@ -242,26 +242,22 @@ GROUP BY 1
 ORDER BY 2 DESC;
 
 -- Top Entry Pages
-CREATE TEMPORARY TABLE min_time
+SELECT *
+FROM website_pageviews;
+
+CREATE TEMPORARY TABLE min_pvid
 SELECT website_session_id,
-		pageview_url,
-        MIN(created_at) AS timeline
+        MIN(website_pageview_id) AS pv_id
 FROM website_pageviews
 WHERE created_at < '2012-06-12'
-GROUP BY 1,2;
+GROUP BY 1;
 
-SELECT MT.pageview_url AS Landing_Page,
-		MT.website_session_id,
-		COUNT(DISTINCT MT.website_session_id) sessions_hitting_LP
-FROM min_time AS MT
+SELECT	WP.pageview_url AS Landing_Page,
+        COUNT(DISTINCT MP.website_session_id) AS sessions_hitting_LP
+FROM min_pvid AS MP
 	LEFT JOIN website_pageviews AS WP
-		ON MT.timeline = WP.created_at
-GROUP BY 1,2
+		ON MP.pv_id = WP.website_pageview_id
+GROUP BY 1	
 ORDER BY 2 DESC;
 
--- Above all wrong
-
-
-
-
-
+-- using min created_at will be wrong beacause some website sessions occur concurrently even in seconds.
