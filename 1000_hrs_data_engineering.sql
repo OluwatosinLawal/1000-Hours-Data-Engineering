@@ -261,16 +261,18 @@ GROUP BY 1
 ORDER BY 2 DESC;
 
 -- using min created_at will be wrong beacause some website sessions occur concurrently even in seconds.
+
+-- Using nested FROM in case you don't want to use temporary tables
 SELECT	WP.pageview_url AS Landing_Page,
-        COUNT(DISTINCT MP.website_session_id) AS sessions_hitting_LP
+        COUNT(DISTINCT sub.website_session_id) AS sessions_hitting_LP
 FROM (
 	SELECT website_session_id,
 			MIN(website_pageview_id) AS pv_id
 	FROM website_pageviews
 	WHERE created_at < '2012-06-12'
 	GROUP BY 1
-    )AS sub
+)AS sub
 LEFT JOIN website_pageviews AS WP
-		ON MP.pv_id = WP.website_pageview_id
+		ON sub.pv_id = WP.website_pageview_id
 GROUP BY 1
 ORDER BY 2 DESC;
