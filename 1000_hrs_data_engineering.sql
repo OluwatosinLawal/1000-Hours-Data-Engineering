@@ -330,6 +330,17 @@ FROM sessions_w_lp AS SWL
 	LEFT JOIN website_pageviews AS WP
 		ON WP. website_session_id = SWL.website_session_id
 GROUP BY 1,2;
+
+-- Limit to where the customer sees only one session to create Bounced Sessions
+SELECT SWL.website_session_id,
+		SWL.LP,
+        COUNT(WP.website_pageview_id) AS count_of_pages_viewed
+FROM sessions_w_lp AS SWL
+	LEFT JOIN website_pageviews AS WP
+		ON WP. website_session_id = SWL.website_session_id
+GROUP BY 1,2
+HAVING  count_of_pages_viewed = 1;
+
 -- summarize total  sessions and bounce sessions by landing page
 
 
