@@ -276,3 +276,36 @@ LEFT JOIN website_pageviews AS WP
 		ON sub.pv_id = WP.website_pageview_id
 GROUP BY 1
 ORDER BY 2 DESC;
+
+#Landing Page Analysis
+#Analyzing bounce rates: 
+#Bouncers have no page views after the first page view 
+#While non bounce sessions have additional sessions after the first page view
+
+-- Find first pageview
+SELECT WP.website_session_id,
+		MIN(WP.website_pageview_id) AS min_pgv_id
+FROM website_pageviews AS WP
+	INNER JOIN website_sessions AS WS
+		ON WP.website_session_id = WS.website_session_id
+WHERE WS.created_at BETWEEN '2014-01-01'   -- How come the instructor used 'AND' instead of 'WHERE' and the answer is still correct?
+						AND '2014-02-01'
+GROUP BY 1;
+
+-- Isn't this simpler? Although there is an extra row in the result
+-- SELECT website_session_id,
+-- 		MIN(website_pageview_id) AS min_pgv_id
+-- FROM website_pageviews AS WP
+-- WHERE created_at BETWEEN '2014-01-01'
+-- 						AND '2014-02-01'
+-- GROUP BY 1;
+
+
+-- Identify the landing page url
+
+
+-- Analyze whether the session had additional pageviews (count pageview per session)
+
+-- summarize total  sessions and bounce sessions by landing page
+
+
