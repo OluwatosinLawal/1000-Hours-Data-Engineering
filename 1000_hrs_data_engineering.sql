@@ -321,7 +321,15 @@ FROM first_pgv_demo AS FPD
 GROUP BY 1,2;
 
 -- Analyze whether the session had additional pageviews (count pageview per session)
+SELECT * FROM sessions_w_lp;
 
+SELECT SWL.website_session_id,
+		SWL.LP,
+        COUNT(WP.website_pageview_id) AS count_of_pages_viewed
+FROM sessions_w_lp AS SWL
+	LEFT JOIN website_pageviews AS WP
+		ON WP. website_session_id = SWL.website_session_id
+GROUP BY 1,2;
 -- summarize total  sessions and bounce sessions by landing page
 
 
