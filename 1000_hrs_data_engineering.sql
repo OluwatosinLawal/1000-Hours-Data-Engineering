@@ -351,3 +351,12 @@ FROM sessions_w_lp AS SWL
 		ON SWL.website_session_id = BS.website_session_id
 ORDER BY 2;
 
+SELECT SWL.LP,
+		COUNT(DISTINCT SWL.website_session_id) AS sessions,
+        COUNT(DISTINCT BS.website_session_id) AS bounce_sessions,
+        COUNT(DISTINCT SWL.website_session_id) /COUNT(DISTINCT BS.website_session_id) AS bounce_rate
+FROM sessions_w_lp AS SWL
+	LEFT JOIN bounced_sessions AS BS
+		ON SWL.website_session_id = BS.website_session_id
+GROUP BY 1
+ORDER BY 3 DESC;
