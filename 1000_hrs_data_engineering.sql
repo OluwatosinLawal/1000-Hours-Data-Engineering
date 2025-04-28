@@ -361,7 +361,9 @@ FROM sessions_w_lp AS SWL
 GROUP BY 1;
 
 
--- Bounce rate analysis example 2
+#Bounce rate analysis example 2
+-- First identify the first page viewed by extracting the minimum pagview id
+-- The clause in the assignment is for only pageview url with home
 CREATE TEMPORARY TABLE home_page
 SELECT website_session_id,
 		MIN(website_pageview_id) AS min_pgv
@@ -370,7 +372,7 @@ WHERE pageview_url = "/home"
 	AND created_at <'2012-06-14'
 GROUP BY 1;
 
-
+-- Identify the page urls with the minimum pageview id
 CREATE TEMPORARY TABLE home_sess
 SELECT HP.website_session_id,
 		WP.pageview_url
@@ -381,6 +383,19 @@ FROM home_page AS HP
 SELECT *
 FROM home_sess;
 
+-- count the number of sessions in the website_pageviews associated with that session id
+CREATE TEMPORARY TABLE all_sessions
+SELECT HS.website_session_id,
+        COUNT(WP.website_session_id) AS sessions
+FROM home_sess AS HS
+	LEFT JOIN website_pageviews AS WP
+		ON WP.website_session_id = HS.website_session_id
+GROUP BY 1;
+
+SELECT *
+FROM all_sessions;
+
+-- count or identify the number of session id with only 1 website_session
 CREATE TEMPORARY TABLE bounced_sess
 SELECT HS.website_session_id,
         COUNT(WP.website_session_id) AS sessions
@@ -393,8 +408,10 @@ HAVING SESSIONS = 1;
 SELECT *
 FROM bounced_sess;
 
-SELECT COUNT(HS.website_session_id) AS sessions,
-		COUNT(BS.sessions) AS bounced_sessions
-FROM bounced_sess AS BS
-	LEFT JOIN home_sess AS HS
-		ON HS.website_session_id = BS.website_session_id;
+-- link both all sessions and session id with only one session to compare
+SELECT COUNT(ASS.website_session_id) AS sessions,
+		COUNT(BS.sessions) AS bounced_sessions,
+        COUNT(BS.sessions) / COUNT(ASS.website_session_id) AS bounce_rate
+FROM all_sessions AS  ASS
+	LEFT JOIN bounced_sess AS BS
+		ON ASS.website_session_id = BS.website_session_id;
