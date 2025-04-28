@@ -354,9 +354,47 @@ ORDER BY 2;
 SELECT SWL.LP,
 		COUNT(DISTINCT SWL.website_session_id) AS sessions,
         COUNT(DISTINCT BS.website_session_id) AS bounce_sessions,
-        COUNT(DISTINCT SWL.website_session_id) /COUNT(DISTINCT BS.website_session_id) AS bounce_rate
+        COUNT(DISTINCT BS.website_session_id) / COUNT(DISTINCT SWL.website_session_id) AS bounce_rate
 FROM sessions_w_lp AS SWL
 	LEFT JOIN bounced_sessions AS BS
 		ON SWL.website_session_id = BS.website_session_id
+GROUP BY 1;
+
+
+-- Bounce rate analysis example 2
+CREATE TEMPORARY TABLE home_page
+SELECT website_session_id,
+		MIN(website_pageview_id) AS min_pgv
+FROM website_pageviews
+WHERE pageview_url = "/home"
+	AND created_at <'2012-06-14'
+GROUP BY 1;
+
+
+CREATE TEMPORARY TABLE home_sess
+SELECT HP.website_session_id,
+		WP.pageview_url
+FROM home_page AS HP
+	LEFT JOIN website_pageviews AS WP
+		ON WP.website_pageview_id = HP.min_pgv;
+
+SELECT *
+FROM home_sess;
+
+CREATE TEMPORARY TABLE bounced_sess
+SELECT HS.website_session_id,
+        COUNT(WP.website_session_id) AS sessions
+FROM home_sess AS HS
+	LEFT JOIN website_pageviews AS WP
+		ON WP.website_session_id = HS.website_session_id
 GROUP BY 1
-ORDER BY 3 DESC;
+HAVING SESSIONS = 1;
+
+SELECT *
+FROM bounced_sess;
+
+SELECT COUNT(HS.website_session_id) AS sessions,
+		COUNT(BS.sessions) AS bounced_sessions
+FROM bounced_sess AS BS
+	LEFT JOIN home_sess AS HS
+		ON HS.website_session_id = BS.website_session_id;
