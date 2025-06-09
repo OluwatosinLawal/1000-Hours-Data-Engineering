@@ -282,7 +282,7 @@ ORDER BY 2 DESC;
 #Bouncers have no page views after the first page view 
 #While non bounce sessions have additional sessions after the first page view
 
--- Find first pageview
+-- Find first pageview of each session ID
 SELECT WP.website_session_id,
 		MIN(WP.website_pageview_id) AS min_pgv_id
 FROM website_pageviews AS WP
@@ -290,9 +290,9 @@ FROM website_pageviews AS WP
 		ON WP.website_session_id = WS.website_session_id
 WHERE WS.created_at BETWEEN '2014-01-01'   -- How come the instructor used 'AND' instead of 'WHERE' and the answer is still correct?
 						AND '2014-02-01'
-GROUP BY 1;
+GROUP BY 1; -- This loads faster
 
--- Isn't this simpler? Although there is an extra row in the result
+-- Isn't this simpler? Although there is an extra row in the result, it takes longer to load
 SELECT website_session_id,
 		MIN(website_pageview_id) AS min_pgv_id
 FROM website_pageviews AS WP
@@ -300,18 +300,21 @@ WHERE created_at BETWEEN '2014-01-01'
 						AND '2014-02-01'
 GROUP BY 1;
 
-CREATE TEMPORARY TABLE first_pgv_demo
-SELECT website_session_id,
-		MIN(website_pageview_id) AS min_pgv_id
+CREATE TEMPORARY TABLE first_pgv_dem
+SELECT WP.website_session_id,
+		MIN(WP.website_pageview_id) AS min_pgv_id
 FROM website_pageviews AS WP
-WHERE created_at BETWEEN '2014-01-01'
+	LEFT JOIN website_sessions AS WS
+		ON WP.website_session_id = WS.website_session_id
+WHERE WS.created_at BETWEEN '2014-01-01' 
 						AND '2014-02-01'
-GROUP BY 1;
+GROUP BY 1; 
 
 
 -- Identify the landing page url
-SELECT * FROM first_pgv_demo;
+SELECT * FROM first_pgv_dem;
 
+-- Show the landing pages for each session
 CREATE TEMPORARY TABLE sessions_w_lp
 SELECT FPD.website_session_id,
 	WP.pageview_url AS LP
@@ -323,6 +326,7 @@ GROUP BY 1,2;
 -- Analyze whether the session had additional pageviews (count pageview per session)
 SELECT * FROM sessions_w_lp;
 
+-- Count the pages viewed
 SELECT SWL.website_session_id,
 		SWL.LP,
         COUNT(WP.website_pageview_id) AS count_of_pages_viewed
@@ -331,7 +335,7 @@ FROM sessions_w_lp AS SWL
 		ON WP. website_session_id = SWL.website_session_id
 GROUP BY 1,2;
 
--- Limit to where the customer sees only one session to create Bounced Sessions
+-- Limit to where the customer sees only one session (one page view) to create Bounced Sessions
 CREATE TEMPORARY TABLE bounced_sessions
 SELECT SWL.website_session_id,
 		SWL.LP,
@@ -361,7 +365,7 @@ FROM sessions_w_lp AS SWL
 GROUP BY 1;
 
 
-#Bounce rate analysis example 2
+#Bounce rate analysis example 2 START FROM HERE AGAIN
 -- First identify the first page viewed by extracting the minimum pagview id
 -- The clause in the assignment is for only pageview url with home
 CREATE TEMPORARY TABLE home_page
