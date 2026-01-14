@@ -419,3 +419,5 @@ SELECT COUNT(ASS.website_session_id) AS sessions,
 FROM all_sessions AS  ASS
 	LEFT JOIN bounced_sess AS BS
 		ON ASS.website_session_id = BS.website_session_id;
+
+--testing
